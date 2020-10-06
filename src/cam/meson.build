@@ -7,8 +7,9 @@ cam_sources = files([
     'main.cpp',
     'options.cpp',
     'stream_options.cpp',
+    'drm_allocator.cpp',
 ])
 
 cam  = executable('cam', cam_sources,
-                  dependencies : [ libatomic, libcamera_dep ],
+                  dependencies : [ libatomic, libcamera_dep, dependency('libdrm')],
                   install : true)

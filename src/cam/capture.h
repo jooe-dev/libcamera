@@ -16,6 +16,7 @@
 #include <libcamera/request.h>
 #include <libcamera/stream.h>
 
+#include "drm_allocator.h"
 #include "buffer_writer.h"
 #include "event_loop.h"
 #include "options.h"
@@ -26,10 +27,11 @@ public:
 	Capture(std::shared_ptr<libcamera::Camera> camera,
 		libcamera::CameraConfiguration *config,
 		EventLoop *loop);
+	~Capture();
 
 	int run(const OptionsParser::Options &options);
 private:
-	int capture(libcamera::FrameBufferAllocator *allocator);
+	int capture(DRMFrameBufferAllocator *allocator);
 
 	void requestComplete(libcamera::Request *request);
 
@@ -43,6 +45,7 @@ private:
 	EventLoop *loop_;
 	unsigned int captureCount_;
 	unsigned int captureLimit_;
+	DRMManager* manager_;
 };
 
 #endif /* __CAM_CAPTURE_H__ */

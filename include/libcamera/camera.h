@@ -101,6 +101,8 @@ public:
 
 	int start();
 	int stop();
+	int exportFrameBuffers(Stream *stream,
+			       std::vector<std::unique_ptr<FrameBuffer>> *buffers);
 
 private:
 	Camera(PipelineHandler *pipe, const std::string &id,
@@ -115,8 +117,6 @@ private:
 	void requestComplete(Request *request);
 
 	friend class FrameBufferAllocator;
-	int exportFrameBuffers(Stream *stream,
-			       std::vector<std::unique_ptr<FrameBuffer>> *buffers);
 };
 
 } /* namespace libcamera */

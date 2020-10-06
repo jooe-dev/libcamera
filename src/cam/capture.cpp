@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <sstream>
 
+#include "drm_allocator.h"
 #include "capture.h"
 #include "main.h"
 
@@ -20,6 +21,20 @@ Capture::Capture(std::shared_ptr<Camera> camera, CameraConfiguration *config,
 	: camera_(camera), config_(config), writer_(nullptr), loop_(loop),
 	  captureCount_(0), captureLimit_(0)
 {
+	/* display params could possibly be detected and guessed from camera config,
+	   hardcoded for now */
+	v4l2_pix_format fmt;
+	fmt.width = 1920;
+	fmt.bytesperline = fmt.width * 4;
+	fmt.height = 1080;
+	fmt.pixelformat = 0x34325241; // AR24
+	fmt.sizeimage = fmt.width * fmt.height * 4;
+	manager_ = new DRMManager("vc4", 68, 74, fmt);
+}
+
+Capture::~Capture()
+{
+	delete manager_;
 }
 
 int Capture::run(const OptionsParser::Options &options)
@@ -56,7 +71,7 @@ int Capture::run(const OptionsParser::Options &options)
 	}
 
 
-	FrameBufferAllocator *allocator = new FrameBufferAllocator(camera_);
+	DRMFrameBufferAllocator *allocator = new DRMFrameBufferAllocator(camera_, manager_);
 
 	ret = capture(allocator);
 
@@ -70,7 +85,7 @@ int Capture::run(const OptionsParser::Options &options)
 	return ret;
 }
 
-int Capture::capture(FrameBufferAllocator *allocator)
+int Capture::capture(DRMFrameBufferAllocator *allocator)
 {
 	int ret;
 
@@ -192,6 +207,9 @@ void Capture::requestComplete(Request *request)
 
 		if (writer_)
 			writer_->write(buffer, name);
+
+		manager_->pageFlip(buffer);
+
 	}
 
 	std::cout << info.str() << std::endl;

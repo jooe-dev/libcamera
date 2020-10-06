@@ -704,8 +704,13 @@ int PipelineHandlerRPi::exportFrameBuffers([[maybe_unused]] Camera *camera, Stre
 					   std::vector<std::unique_ptr<FrameBuffer>> *buffers)
 {
 	RPi::Stream *s = static_cast<RPi::Stream *>(stream);
+	/* test: hack to support external imported buffers */
+#if 0
 	unsigned int count = stream->configuration().bufferCount;
 	int ret = s->dev()->exportBuffers(count, buffers);
+#else
+	int ret = 0;
+#endif
 
 	s->setExportedBuffers(buffers);
 
